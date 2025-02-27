@@ -78,6 +78,38 @@ class Player {
         }
         return false;
     }
+    public checkWin(goal: GoalBox): boolean {
+        if (this.x + this.width > goal.x &&
+            this.x < goal.x + goal.width &&
+            this.y + this.height > goal.y &&
+            this.y < goal.y + goal.height) {
+            return true;
+        }
+        return false;
+    }
+}
+
+class GoalBox {
+    private ctx: CanvasRenderingContext2D;
+    public x: number;
+    public y: number;
+    public width: number;
+    public height: number;
+    public color: string;
+
+    constructor(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string) {
+        this.ctx = ctx;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+    }
+
+    public draw(): void {
+        this.ctx.fillStyle = this.color;
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
 }
 
 class EnemyBox {
@@ -118,6 +150,7 @@ class EnemyBox {
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
+
 function main(): void {
     const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -125,8 +158,10 @@ function main(): void {
     const player: Player = new Player(ctx, 50, 50, 50, 50, 'red');
     const enemy1: EnemyBox = new EnemyBox(ctx, 200, 200, 50, 50, 'blue');
     const enemy2: EnemyBox = new EnemyBox(ctx, 300, 300, 50, 50, 'green');
+    const goal: GoalBox = new GoalBox(ctx, 400, 400, 50, 50, 'orange');
 
     let isGameOver: boolean = false;
+    let isGameWon: boolean = false;
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
         switch (event.key) {
@@ -142,8 +177,9 @@ function main(): void {
             case 'ArrowDown':
                 break;
             case 'Enter':
-                if (isGameOver) {
+                if (isGameOver || isGameWon) {
                     isGameOver = false;
+                    isGameWon = false;
                     player.x = 50;
                     player.y = 50;
                     player.velocityX = 0;
@@ -165,7 +201,7 @@ function main(): void {
     function animate(): void {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (!isGameOver) {
+        if (!isGameOver && !isGameWon) {
             player.update();
             player.draw();
 
@@ -175,10 +211,14 @@ function main(): void {
             enemy2.update();
             enemy2.draw();
 
+            goal.draw();
+
             if (player.checkCollision(enemy1) || player.checkCollision(enemy2)) {
                 isGameOver = true;
+            } else if (player.checkWin(goal)) {
+                isGameWon = true;
             }
-        } else {
+        } else if (isGameOver) {
             ctx.font = '48px Arial';
             ctx.fillStyle = 'red';
             ctx.textAlign = 'center';
@@ -186,6 +226,14 @@ function main(): void {
             ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2);
             ctx.font = '24px Arial';
             ctx.fillText('Press Enter to try again', canvas.width / 2, canvas.height / 2 + 50);
+        } else if (isGameWon) {
+            ctx.font = '48px Arial';
+            ctx.fillStyle = 'green';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('You Win!', canvas.width / 2, canvas.height / 2);
+            ctx.font = '24px Arial';
+            ctx.fillText('Press Enter to play again', canvas.width / 2, canvas.height / 2 + 50);
         }
 
         requestAnimationFrame(animate);

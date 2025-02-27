@@ -59,6 +59,29 @@ class Player {
         }
         return false;
     }
+    checkWin(goal) {
+        if (this.x + this.width > goal.x &&
+            this.x < goal.x + goal.width &&
+            this.y + this.height > goal.y &&
+            this.y < goal.y + goal.height) {
+            return true;
+        }
+        return false;
+    }
+}
+class GoalBox {
+    constructor(ctx, x, y, width, height, color) {
+        this.ctx = ctx;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+    }
+    draw() {
+        this.ctx.fillStyle = this.color;
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
 }
 class EnemyBox {
     constructor(ctx, x, y, width, height, color) {
@@ -92,7 +115,9 @@ function main() {
     const player = new Player(ctx, 50, 50, 50, 50, 'red');
     const enemy1 = new EnemyBox(ctx, 200, 200, 50, 50, 'blue');
     const enemy2 = new EnemyBox(ctx, 300, 300, 50, 50, 'green');
+    const goal = new GoalBox(ctx, 400, 400, 50, 50, 'orange');
     let isGameOver = false;
+    let isGameWon = false;
     document.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowLeft':
@@ -107,8 +132,9 @@ function main() {
             case 'ArrowDown':
                 break;
             case 'Enter':
-                if (isGameOver) {
+                if (isGameOver || isGameWon) {
                     isGameOver = false;
+                    isGameWon = false;
                     player.x = 50;
                     player.y = 50;
                     player.velocityX = 0;
@@ -127,18 +153,22 @@ function main() {
     });
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (!isGameOver) {
+        if (!isGameOver && !isGameWon) {
             player.update();
             player.draw();
             enemy1.update();
             enemy1.draw();
             enemy2.update();
             enemy2.draw();
+            goal.draw();
             if (player.checkCollision(enemy1) || player.checkCollision(enemy2)) {
                 isGameOver = true;
             }
+            else if (player.checkWin(goal)) {
+                isGameWon = true;
+            }
         }
-        else {
+        else if (isGameOver) {
             ctx.font = '48px Arial';
             ctx.fillStyle = 'red';
             ctx.textAlign = 'center';
@@ -146,6 +176,15 @@ function main() {
             ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2);
             ctx.font = '24px Arial';
             ctx.fillText('Press Enter to try again', canvas.width / 2, canvas.height / 2 + 50);
+        }
+        else if (isGameWon) {
+            ctx.font = '48px Arial';
+            ctx.fillStyle = 'green';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('You Win!', canvas.width / 2, canvas.height / 2);
+            ctx.font = '24px Arial';
+            ctx.fillText('Press Enter to play again', canvas.width / 2, canvas.height / 2 + 50);
         }
         requestAnimationFrame(animate);
     }
