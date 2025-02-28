@@ -1,26 +1,29 @@
-export class EnemyBox {
+import { Actor } from "../Actor/Actor";
+export class EnemyBox extends Actor {
     constructor(ctx, x, y, width, height, color) {
-        this.ctx = ctx;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.color = color;
-        this.velocityX = Math.random() * 2 - 1;
-        this.velocityY = Math.random() * 2 - 1;
+        super(ctx, x, y, width, height, color);
+        this.speedMultiplier = 5; // Adjust this value to control the speed
+        this.velocityX = (Math.random() - 0.5) * 2 * this.speedMultiplier; // Random initial velocity with multiplier
+        this.velocityY = (Math.random() - 0.5) * 2 * this.speedMultiplier; // Random initial velocity with multiplier
     }
     update() {
         this.x += this.velocityX;
         this.y += this.velocityY;
-        if (this.x + this.width > this.ctx.canvas.width || this.x < 0) {
+        if (this.x + this.width > this.ctx.canvas.width) {
+            this.x = this.ctx.canvas.width - this.width;
             this.velocityX = -this.velocityX;
         }
-        if (this.y + this.height > this.ctx.canvas.height || this.y < 0) {
+        if (this.x < 0) {
+            this.x = 0;
+            this.velocityX = -this.velocityX;
+        }
+        if (this.y + this.height > this.ctx.canvas.height) {
+            this.y = this.ctx.canvas.height - this.height;
             this.velocityY = -this.velocityY;
         }
-    }
-    draw() {
-        this.ctx.fillStyle = this.color;
-        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        if (this.y < 0) {
+            this.y = 0;
+            this.velocityY = -this.velocityY;
+        }
     }
 }

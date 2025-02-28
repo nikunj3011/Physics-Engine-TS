@@ -74,38 +74,38 @@ function main(): void {
 
     function animate(): void {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // if (!isGameOver && !isGameWon) {
-        //     player.update();
-        //     player.draw();
-
-        //     enemy1.update();
-        //     enemy1.draw();
-
-        //     enemy2.update();
-        //     enemy2.draw();
-
-        //     goal.draw();
-
-        //     if (player.checkCollision(enemy1) || player.checkCollision(enemy2)) {
-        //         isGameOver = true;
-        //     } else if (player.checkWin(goal)) {
-        //         isGameWon = true;
-        //     }
-        // }
         if (!isGameOver && !isGameWon) {
-            levels[currentLevel].update();
-            levels[currentLevel].draw(ctx);
+            player.update();
+            player.draw();
 
-            if (levels[currentLevel].checkCollisions()) {
+            enemy1.update();
+            enemy1.draw();
+
+            enemy2.update();
+            enemy2.draw();
+
+            goal.draw();
+
+            if (player.checkCollision(enemy1) || player.checkCollision(enemy2)) {
                 isGameOver = true;
-            } else if (levels[currentLevel].checkWin()) {
+            } else if (player.checkWin(goal)) {
                 isGameWon = true;
-                currentLevel++;
-                if (currentLevel >= levels.length) {
-                    currentLevel = 0;
-                }
             }
         }
+        // if (!isGameOver && !isGameWon) {
+        //     levels[currentLevel].update();
+        //     levels[currentLevel].draw(ctx);
+
+        //     if (levels[currentLevel].checkCollisions()) {
+        //         isGameOver = true;
+        //     } else if (levels[currentLevel].checkWin()) {
+        //         isGameWon = true;
+        //         currentLevel++;
+        //         if (currentLevel >= levels.length) {
+        //             currentLevel = 0;
+        //         }
+        //     }
+        // }
         else if (isGameOver) {
             ctx.font = '48px Arial';
             ctx.fillStyle = 'red';
